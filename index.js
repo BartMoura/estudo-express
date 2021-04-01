@@ -8,7 +8,7 @@ app.use(express.json()); // manda o json para o body da requisição
 const projects = [];
 
 app.get('/projects', (request, response) => {
-    const { title, owner } = request.query;
+    // const { title, owner } = request.query;
     
     // console.log(title);
     // console.log(owner);
@@ -30,23 +30,44 @@ app.post('/projects', (request, response) =>{
 });
 
 app.put('/projects/:id', (request, response) => {
-    const params = request.params;
-    console.log(params);
+    const { id } = request.params; // aqui pegamos nosso ID
+    const { title, owner } = request.body; // retornando uma nova informação
 
-    return response.json([
-        'Projeto 50',
-        'Projeto 2',
-        'Projeto 3',
-        'Projeto 4',
-        'Projeto 5'
-    ]);
+    // aqui usamos o finfIndex para percorrer rodo o array atrás do id
+    // findIndex vai percorrer todos os projetos, e toda vez que ele percorrer na vairável project
+    // caso ela satisfeita e retornar true, ela vai me retornar o id que estou passando (project => project.id === id)
+    const projectIndex = projects.findIndex(project => project.id === id);
+
+    if (projectIndex < 0) {
+        return response.status(400).json({ error: 'Projeto não foi encontrado' });
+    }
+
+    // agora que tenho índice, vou criar uma nova informação do projeto
+    const project = {
+        id,
+        title,
+        owner
+    }
+
+    projects[projectIndex] = project;
+
+    return response.json(project);
 });
 
 app.delete('/projects/:id', (request, response) => {
-    return response.json([
-        'Projeto 50',
-        'Projeto 2',
-    ]);
+    const { id } = request.params;
+
+    const projectIndex = projects.findIndex(project => project.id === id);
+
+    if (projectIndex < 0) {
+        return response.status(400).json({ error: 'Projeto não foi encontrado' });
+    }
+
+    // splice pega o vetor e remove apenas o que foi passado
+    projects.splice(projectIndex, 1); // 1 = número de posições que vai ser apagado
+
+    return response.status(204).send();
+    
 });
 
 app.listen(3333);
